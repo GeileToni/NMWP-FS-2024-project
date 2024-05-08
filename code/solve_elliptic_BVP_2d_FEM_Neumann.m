@@ -18,10 +18,10 @@ function uh = solve_elliptic_BVP_2d_FEM_Neumann(p, t, e, f, g)
 nP = size(p, 1);
 
 % assemble matrices
-A = stiffnessMatrix2D(p,t);
-M = massMatrix2D(p,t);
-L = loadVector2D(p,t,f);
-G = neumannLoadVector2D(p,e,g);
+A = FEM2D.stiffnessMatrix2D(p,t);
+M = FEM2D.massMatrix2D(p,t);
+L = FEM2D.loadVector2D(p,t,f);
+G = FEM2D.neumannLoadVector2D(p,e,g);
 
 % % find interior points of triangularization 
 % idxExt = reshape(e, [], 1);
