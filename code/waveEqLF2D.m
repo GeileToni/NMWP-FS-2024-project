@@ -1,5 +1,5 @@
 % author: Mauro Morini  
-% last modified: 26.04.24
+% last modified: 08.05.24
 function [uh_T, tvec] = waveEqLF2D(u0, u1, g, T, dt, p, e, t, kappa, roh, RTotCoord)
 % solves the wave equation in 2D with Leap-Frog time discretization and
 % mass lumping and FEM spacial discretization and returns u(x, T) at end
@@ -44,13 +44,10 @@ if size(T, 2) > 1
     T = T(end);
     uh_T = zeros(size(p, 1), length(TOld));
 
-    if TOld(1) < 2*dt
-        error("smallest time in vector T is too small: Tmin = " + Tsorted(1))
-    end
+    % if TOld(1) < 2*dt
+    %     error("smallest time in vector T is too small: Tmin = " + Tsorted(1))
+    % end
 end
-
-tvec = 0:dt:T;
-N = length(tvec) - 1;
 
 if ~exist('kappa','var') 
     kappa = @(x,y) ones(size(x)); 
@@ -96,8 +93,8 @@ else
     yRes = 0;
 end
 % Assemble stiffness matrix inside resonator and outside
-Ares = stiffnessMatrix2D(p, t(resIdx,:));
-Abackg = stiffnessMatrix2D(p, t(~resIdx,:));
+Ares = FEM2D.stiffnessMatrix2D(p, t(resIdx,:));
+Abackg = FEM2D.stiffnessMatrix2D(p, t(~resIdx,:));
 A = Ares/roh(xRes,yRes,0) + Abackg;
 
 % % test
@@ -105,13 +102,20 @@ A = Ares/roh(xRes,yRes,0) + Abackg;
 % norm(full(Astand - A),'fro')
 
 % Assemble and lump remaining matrices
-M = massMatrix2D(p, t, @(x,y) 1/kappa(x,y));
-R = neumannMassMatrix2D(p, gamma2,@(x,y) ((c(x,y,0).*roh(x,y,0)).^(-1)));
-G = neumannLoadVector2D(p, gamma1, @(x,y) g(x,y,0)./roh(x,y,0));
+M = FEM2D.massMatrix2D(p, t, @(x,y) 1/kappa(x,y));
+R = FEM2D.neumannMassMatrix2D(p, gamma2,@(x,y) ((c(x,y,0).*roh(x,y,0)).^(-1)));
+G = FEM2D.neumannLoadVector2D(p, gamma1, @(x,y) g(x,y,0)./roh(x,y,0));
 MLump = diag(sum(M, 2));
 RLump = diag(sum(R, 2));
 M = MLump;
 R = RLump;
+
+% calculate stable dt
+lMax = eigs(A,1);
+lMin = eigs(M,1,0);
+dt = sqrt(lMin/lMax);
+tvec = 0:dt:T;
+N = length(tvec) - 1;
 
 % initial conditions
 uhPrev = u0(p(:, 1), p(:, 2));
@@ -126,7 +130,7 @@ for i = 1:N
         % A = stiffnessMatrix2D(p, t, @(x,y) 1/roh(x,y,dt*i));
         A = Ares/roh(xRes,yRes,dt*i) + Abackg;
     end
-    G = neumannLoadVector2D(p, gamma1, @(x,y) g(x,y,dt*i)./roh(x,y,dt*i));
+    G = FEM2D.neumannLoadVector2D(p, gamma1, @(x,y) g(x,y,dt*i)./roh(x,y,dt*i));
     LHS = (1/dt^2*M + 1/(2*dt)*R);
     RHS = G - (A - 2/dt^2*M)*uhNow - (1/dt^2*M - 1/(2*dt)*R)*uhPrev;
 

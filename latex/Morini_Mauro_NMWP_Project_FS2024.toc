@@ -10,3 +10,22 @@
 \contentsline {subsection}{\numberline {3.5}Time Discretization Test}{6}{subsection.3.5}%
 \contentsline {subsection}{\numberline {3.6}Simulation with Resonators}{7}{subsection.3.6}%
 \contentsline {subsection}{\numberline {3.7}Runtime Improvements}{7}{subsection.3.7}%
+\contentsline {section}{\numberline {4}References}{10}{section.4}%
+\contentsline {section}{\numberline {5}Matlab Code}{11}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Scripts}{11}{subsection.5.1}%
+\contentsline {subsubsection}{\numberline {5.1.1}generate\_rectangular\_Mesh\_with\_resonators}{11}{subsubsection.5.1.1}%
+\contentsline {subsubsection}{\numberline {5.1.2}NMWP\_Project\_E2}{11}{subsubsection.5.1.2}%
+\contentsline {subsubsection}{\numberline {5.1.3}NMWP\_Project\_E3}{12}{subsubsection.5.1.3}%
+\contentsline {subsubsection}{\numberline {5.1.4}NMWP\_Project\_E4}{13}{subsubsection.5.1.4}%
+\contentsline {subsection}{\numberline {5.2}Functions}{15}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {5.2.1}stiffnessMatrix2D}{15}{subsubsection.5.2.1}%
+\contentsline {subsubsection}{\numberline {5.2.2}massMatrix2D}{16}{subsubsection.5.2.2}%
+\contentsline {subsubsection}{\numberline {5.2.3}loadVector2D}{17}{subsubsection.5.2.3}%
+\contentsline {subsubsection}{\numberline {5.2.4}neumannMassMatrix2D}{17}{subsubsection.5.2.4}%
+\contentsline {subsubsection}{\numberline {5.2.5}neumannLoadVector2D}{18}{subsubsection.5.2.5}%
+\contentsline {subsubsection}{\numberline {5.2.6}waveEqLF2D}{19}{subsubsection.5.2.6}%
+\contentsline {subsubsection}{\numberline {5.2.7}solve\_elliptic\_BVP\_2d\_FEM\_Neumann}{22}{subsubsection.5.2.7}%
+\contentsline {subsubsection}{\numberline {5.2.8}error2d}{23}{subsubsection.5.2.8}%
+\contentsline {subsubsection}{\numberline {5.2.9}gen\_mesh}{24}{subsubsection.5.2.9}%
+\contentsline {subsubsection}{\numberline {5.2.10}triangulation2d}{25}{subsubsection.5.2.10}%
+\contentsline {subsubsection}{\numberline {5.2.11}generateMesh2dUnitSquare}{25}{subsubsection.5.2.11}%

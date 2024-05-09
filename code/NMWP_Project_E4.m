@@ -46,32 +46,33 @@ u1 = u0;
 uh_T = waveEqLF2D(u0, u1, g, T, dt, p, e, t, kappa, roh,RTotCoord);
 
 %% plot
-% for i = length(T):-1:1
-%     figure;
-%     tld = tiledlayout('flow');
-%     nexttile
-%     trisurf(t,p(:,1),p(:,2),uh_T(:,i), 'EdgeColor', 'none')
-%     title("uh_T, t = " + T(i))
-%     view(2)
-% end
-figure(1);
-tld = tiledlayout('flow');
-Tloc = [59, 63, 67, 70, 75, 110];
-Tloc = 110;
-for i = Tloc
+for i = length(T):-1:1
+    figure;
+    tld = tiledlayout('flow');
     nexttile
     trisurf(t,p(:,1),p(:,2),uh_T(:,i), 'EdgeColor', 'none')
-    xlabel("x")
-    ylabel("y")
-    zlabel("uh")
     title("uh_T, t = " + T(i))
-    colorbar;
-    axis equal; axis off; axis tight ; %colormap ('jet');
-    view(2)
-    % view(270,90)
+    %view(2)
 end
+% figure(1);
+% tld = tiledlayout('flow');
+% Tloc = [59, 63, 67, 70, 75, 110];
+% Tloc = 90;
+% for i = Tloc
+%     nexttile
+%     figure
+%     trisurf(t,p(:,1),p(:,2),uh_T(:,i), 'EdgeColor', 'none')
+%     xlabel("x")
+%     ylabel("y")
+%     zlabel("uh")
+%     title("uh_T, t = " + T(i))
+%     colorbar;
+%     axis equal; axis off; axis tight ; %colormap ('jet');
+%     %view(2)
+%     %view(270,90)
+% end
 
 
-% save("NMWP_Project_E4_workspace_backup_v1.05.mat")
-% save("uh_T_E4_v1.05.mat","uh_T")
-% save("NMWP_Project_resonator_mesh_data_v1.05.mat")
+% save("NMWP_Project_E4_workspace_backup_v1.06.mat")
+% save("uh_T_E4_v1.06.mat","uh_T")
+% save("NMWP_Project_resonator_mesh_data_v1.06.mat")

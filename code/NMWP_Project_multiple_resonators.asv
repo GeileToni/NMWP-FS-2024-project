@@ -1,0 +1,27 @@
+% author: Mauro Morini  
+% last modified: 08.05.24
+clc;clear;close all;
+
+% Initialization 
+H = 0.1;
+h = 0.03;
+r = 0.4;
+dt = 0.005;
+omega = 2*pi;
+T = 0.5:0.2:30;
+
+% mesh nodes
+Lx = 20;
+Ly = 10;
+xNum = 4;
+yNum = 3;
+xLength = Lx/(2*xNum + 1);
+yLength = Ly/(2*yNum + 1);
+backgNodes = [0, 0; Lx, 0; Lx, Ly; 0, Ly];
+resNodeLoc = [0, 0; xLength, 0; xLength, yLength; 0, yLength];
+
+% create resNode
+for i = 1:yNum
+    resNode()
+end
+
