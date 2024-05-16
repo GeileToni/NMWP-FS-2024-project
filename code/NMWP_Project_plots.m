@@ -15,11 +15,10 @@ for i = 1:length(T)
     title("uh_T, t = " + T(i))
     colorbar ;
     axis equal ; axis off ; axis tight ; %colormap ('jet');
-    %view(2);
+    view(2);
     xlabel("x")
     ylabel("y")
     zlabel("uh")
-    %zlim([-0.3,0.1])
     drawnow;
     F(i) = getframe(fig);
     disp("t = "+ T(i))
