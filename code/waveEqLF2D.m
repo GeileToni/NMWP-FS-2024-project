@@ -1,5 +1,5 @@
 % author: Mauro Morini  
-% last modified: 08.05.24
+% last modified: 09.05.24
 function [uh_T, tvec] = waveEqLF2D(u0, u1, g, T, dt, p, e, t, kappa, roh, RTotCoord)
 % solves the wave equation in 2D with Leap-Frog time discretization and
 % mass lumping and FEM spacial discretization and returns u(x, T) at end
@@ -81,10 +81,13 @@ if hasResonators
     pt1 = p(t(:,1),:);
     pt2 = p(t(:,2),:);
     pt3 = p(t(:,3),:);
+    % resIdx = logical( ...
+    %     inpolygon(pt1(:,1),pt1(:,2),RTotCoord(:, 1), RTotCoord(:, 2)).*...
+    %     inpolygon(pt2(:,1),pt2(:,2),RTotCoord(:, 1), RTotCoord(:, 2)).*...
+    %     inpolygon(pt3(:,1),pt3(:,2),RTotCoord(:, 1), RTotCoord(:, 2)));
     resIdx = logical( ...
-        inpolygon(pt1(:,1),pt1(:,2),RTotCoord(:, 1), RTotCoord(:, 2)).*...
-        inpolygon(pt2(:,1),pt2(:,2),RTotCoord(:, 1), RTotCoord(:, 2)).*...
-        inpolygon(pt3(:,1),pt3(:,2),RTotCoord(:, 1), RTotCoord(:, 2)));
+        inShape2D(pt1,RTotCoord).*...
+        inShape2D(pt2,RTotCoord).*inShape2D(pt3,RTotCoord));
     xRes = RTotCoord(1,1);
     yRes = RTotCoord(1,2);
 else
