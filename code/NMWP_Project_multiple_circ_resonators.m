@@ -47,7 +47,7 @@ resNode = [resNode(:,1:5),resNode(:,7:end)];
 % create mesh
 [p,t,e, model] = createCircleResonatorMesh(backgNodes, resNode,Hmax,hres);
 
-% pdeplot(model)
+pdeplot(model)
 
 % create ResTot for inShape
 RTotCoord = resNode';
