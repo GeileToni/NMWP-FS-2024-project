@@ -76,3 +76,31 @@ end
 % save("NMWP_Project_E4_workspace_backup_v1.06.mat")
 % save("uh_T_E4_v1.06.mat","uh_T")
 % save("NMWP_Project_resonator_mesh_data_v1.06.mat")
+
+%% new adaptation using WaveGuide
+clc;clear;close all;
+
+% Initializations
+R1coord = [12, 0; 12.25, 5.5];
+R2coord = [12, 6; 12.25, 10];
+
+% Wave guide initialization
+W = WaveGuide();
+W = W.addRectRes(R1coord);
+W = W.addRectRes(R2coord);
+W = W.updateModel();
+W.plotMesh()
+W = W.assembleMatrices();
+W = W.lumpM();
+
+% functions
+kappa = @(x,y) 1*~W.isInResonator([x,y]) + 0.2*W.isInResonator([x,y]);
+rho_r = @(t) 0.1/(1+0.2*cos(pi/2*t));
+rho = @(x,y,t) 1*~W.isInResonator([x,y]) + rho_t(t)*W.isInResonator([x,y]);
+kappa1 = 0.2;
+g = @(x,y,t) sin(omega*(x - t));
+u0 = @(x,y) x*0;
+u1 = u0;
+
+% matrices 
+[A, M] = W.getGlobMat([1, 1/rho_r(0)], [1, kappa1]);
