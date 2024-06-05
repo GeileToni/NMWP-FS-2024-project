@@ -1,21 +1,16 @@
 % author: Mauro Morini  
-% last modified: 01.06.24
+% last modified: 05.06.24
 clc;clear;close all;
 
 % Initializations
 recRes = {[12, 0; 12.25, 5.5],[12, 6; 12.25, 10]};
-T = 0.5:0.5:30;
+circCent = [5, 2];
+T = 0.5:0.5:100;
 omega = 2*pi;
 H = 0.1;
 h = 0.05;
 hGrad = 1.3;
-
-% functions
-rho_r = @(t) 0.1/(1+0.2*cos(pi/2*t));
 kappa1 = 0.001;
-g = @(x,y,t) sin(omega*(x - t));
-u0 = @(x,y) x*0;
-u1 = u0;
 
 % Wave guide initialization
 W = WaveGuide;
@@ -23,20 +18,32 @@ W = W.setMeshsize(H,h,hGrad);
 % for i = 1:length(recRes)
 %     W = W.addRectRes(recRes{i});
 % end
-W = W.addCircRes([W.bbox(2,1), W.bbox(2,2)]/2,0.1);
+W = W.addCircRes([W.bbox(2,1), W.bbox(2,2)]/2,1);
+% for i = 1:4
+%     for j = 1:4
+%         W = W.addCircRes([j*2+5, i*2], 0.2);
+%     end
+% end
 W = W.updateModel();
 W.plotMesh()
 W = W.assembleMatrices();
 W = W.lumpM();
 [p,e,t] = W.getPet;
 
-% calculate natural frequencies 
+%% calculate natural frequencies 
 [A,M] = W.getGlobMat([1, 1/kappa1], [1, 1/kappa1]);
-dTot = -sqrt(eigs(A,M));
+dTot = sqrt(eigs(A,M, 10, 1));
 resIdx = W.getPointsInRes;
-dRes = -sqrt(eigs(W.Ares(resIdx,resIdx)/kappa1,W.Mres(resIdx,resIdx)/kappa1));
+dRes = sqrt(eigs(W.Ares(resIdx,resIdx)/kappa1,W.Mres(resIdx,resIdx)/kappa1, 100));
+omega = dRes(end);
 %% calculate time dependant solution uh
-g = @(x,y,t) sin(dRes(1)*(x - t));
+
+% functions
+rho_r = @(t) 1/(1+0.2*cos(omega*t));
+g = @(x,y,t) sin(omega*(x - t));
+u0 = @(x,y) x*0;
+u1 = u0;
+
 % find boundary sections        
 pe1x = p(e(:, 1), 1);
 pe1y = p(e(:, 1), 2);

@@ -1,5 +1,5 @@
 % author: Mauro Morini
-% last modified: 01.06.24
+% last modified: 06.06.24
 classdef WaveGuide
     % class of rectangular 2d wave guide mesh with properties and methods to create
     % different metamaterials with resonators 
@@ -47,9 +47,9 @@ classdef WaveGuide
         geom
 
         % mesh
-        H {mustBeScalarOrEmpty}
-        h {mustBeScalarOrEmpty}
-        hGrad {mustBeScalarOrEmpty}
+        H = 0.5;
+        h = 0.1;
+        hGrad = 1.5;
         model
         p
         e
@@ -69,38 +69,104 @@ classdef WaveGuide
             if nargin == 0
                 % default constructer, no resonator
                 obj.bbox = [0, 0; 20, 10];
-                obj.H = 0.5;
-                obj.h = 0.1;
-                obj.hGrad = 1.5;
                 obj.gd = [3, 4, 0, 20, 20, 0, 0, 0, 10, 10]';
+                obj.sf = "B";
+                obj.ns = ["B"];
+                obj = updateModel(obj);
                 
             elseif nargin == 1
                 % only input bounding box
                 obj.bbox = varargin{1};
-                obj.H = 0.5;
-                obj.h = 0.1;
-                obj.hGrad = 1.5;
                 obj.gd = [3, 4, obj.bbox(1,1), obj.bbox(2,1), obj.bbox(2,1), obj.bbox(1,1),...
                             obj.bbox(1,2), obj.bbox(1,2), obj.bbox(2,2), obj.bbox(2,2)]';
-            elseif nargin == 2
-                % input bbox and meshsizes in a vector
-                obj.bbox = varargin{1};
-                obj.H = varargin{2}(1);
-                obj.h = varargin{2}(2);
-                obj.hGrad = varargin{2}(3);
-                obj.gd = [3, 4, obj.bbox(1,1), obj.bbox(2,1), obj.bbox(2,1), obj.bbox(1,1),...
-                            obj.bbox(1,2), obj.bbox(1,2), obj.bbox(2,2), obj.bbox(2,2)]';
+                obj.sf = "B";
+                obj.ns = ["B"];
+                obj = updateModel(obj);
+            elseif nargin == 6
+                % create wave guide with predefined periodic resonator subdomains
+                % based on last input name
+                % 
+                % Inputs:
+                % p0: (1,2) vector with x and y coordinate of leftmost
+                %       point, startingpoint for periodicity
+                % H: scalar background meshsize (max meshsize)
+                % h: scalar resonator meshsize 
+                % hGrad: scalar change rate between meshsizes (default 1.5)
+                % [xNum,yNum]: (1,2) vector with number of subdomains in x
+                %               and y direction
+                % [xLen, yLen]: (1,2) vector with length of each subdomain
+                %                in the respective dimension
+                % r: radius of circular resonators in subdomains
+
+                p0 = varargin{1};
+                H = varargin{2}(1);
+                h = varargin{2}(2);
+                hGrad = varargin{2}(3);
+                xNum = varargin{3}(1);
+                yNum = varargin{3}(2);
+                xLen = varargin{4}(1);
+                yLen = varargin{4}(2);
+                r = varargin{5};
+
+                switch varargin{6}
+                    case "1_in_Square"
+                        obj = WaveGuide([p0; p0(1) + xNum*xLen, p0(2) + yNum*yLen]);
+                        c0 = [p0(1)+xLen/2, p0(2)+yLen/2];
+                        obj = setMeshsize(obj,H,h,hGrad);
+                        for i = 1:xNum
+                            for j = 1:yNum
+                                obj = addCircRes(obj, c0+[(i-1)*xLen, (j-1)*yLen], r);
+                            end
+                        end
+                    case  "2_in_Square"
+                        obj = WaveGuide([p0; p0(1) + xNum*xLen, p0(2) + yNum*yLen]);
+                        c0 = [p0(1)+xLen/2 - 1.2*r, p0(2)+yLen/2];
+                        c1 = [p0(1)+xLen/2 + 1.2*r, p0(2)+yLen/2];
+                        obj = setMeshsize(obj, H,h,hGrad);
+                        for i = 1:xNum
+                            for j = 1:yNum
+                                obj = addCircRes(obj, c0+[(i-1)*xLen, (j-1)*yLen], r);
+                                obj = addCircRes(obj, c1+[(i-1)*xLen, (j-1)*yLen], r);
+                            end
+                        end
+                    case "2_in_Quadri"
+                        obj = WaveGuide([p0 - [0, yNum*yLen/2]; p0 + [xNum*xLen, yNum*yLen/2]]);
+                        obj = setMeshsize(obj,H,h,hGrad);
+                        for i = 1:xNum
+                            for j = 1:yNum
+                                c = p0 + (i-1)*[xLen, yLen]/2 + (j-1)*[xLen, -yLen]/2;
+                                obj = addCircRes(obj, c + [xLen/3, 0], r);
+                                obj = addCircRes(obj, c + [2*xLen/3, 0], r);
+                            end
+                        end
+                    case "honeycomb"
+                        obj = WaveGuide([p0 - [0, yNum*yLen/2]; p0 + [xNum*xLen, yNum*yLen/2]]);
+                        obj = setMeshsize(obj, H,h,hGrad);
+                        for i = 1:xNum
+                            for j = 1:yNum
+                                c = p0 + (i-1)*[xLen, yLen]/2 + (j-1)*[xLen, -yLen]/2;
+                                c1 = c + [xLen/3 + 3*r, 0];
+                                c2 = c + [xLen/3,0] + 3*r*[cos(2*pi/3), sin(2*pi/3)];
+                                c3 = c + [xLen/3,0] + 3*r*[cos(4*pi/3), sin(4*pi/3)];
+                                c4 = c + 2*[xLen/3,0] + 3*r*[cos(pi/3), sin(pi/3)];
+                                c5 = c + 2*[xLen/3,0] - 3*r*[xLen/3, 0];
+                                c6 = c + 2*[xLen/3,0] + 3*r*[cos(5*pi/3), sin(5*pi/3)];
+                                obj = addCircRes(obj, c1, r);
+                                obj = addCircRes(obj, c2, r);
+                                obj = addCircRes(obj, c3, r);
+                                obj = addCircRes(obj, c4, r);
+                                obj = addCircRes(obj, c5, r);
+                                obj = addCircRes(obj, c6, r);
+                            end
+                        end
+                    otherwise
+                        error("constructed for last input: " + varargin{6} +" has not been implemented")
+                end
+                obj = updateModel(obj);
+                
+            else 
+                error("Constructer for "+nargin+" inputs not implemented")
             end
-            obj.sf = "B";
-            obj.ns = ["B"];
-            obj.model = createpde;
-            obj.geom = decsg([obj.gd],[obj.sf],[obj.ns]);
-            geometryFromEdges(obj.model, obj.geom);
-            generateMesh(obj.model, "GeometricOrder","linear", Hmax=obj.H);
-            [p,e,t] = meshToPet(obj.model.Mesh);
-            obj.p = p;
-            obj.e = e;
-            obj.t = t;
         end
 
         % getters
@@ -204,7 +270,7 @@ classdef WaveGuide
             obj.Mres = FEM2D.massMatrix2D(p,t(resIdx,:));
             obj.MisLumped = false;
         end
-
+        
         function obj = lumpM(obj)
             % lumps both mass matrices
             
@@ -216,6 +282,12 @@ classdef WaveGuide
             obj.Mb = diag(sum(obj.Mb, 2));
             obj.Mres = diag(sum(obj.Mres, 2));
             obj.MisLumped = true;
+        end
+
+        % compute resonance frequency
+        function eig = computeResonanceFrequencies(obj, cA, cM, nEig, sigma)
+            [A,M] = getGlobMat(obj, cA, cM);
+            eig = sqrt(eigs(A,M, nEig, sigma));
         end
 
         % adapt and update mesh

@@ -8,7 +8,7 @@ load("uh_T_E4_v1.06.mat")
 
 %%
 F = struct('cdata',[],'colormap',[]);
-fig = figure;
+fig = figure(5);
 zmax = max(uh_T(:));
 zmin = min(uh_T(:));
 contrast_factor = 0.1;
@@ -19,10 +19,11 @@ for i = 1:length(T)
     trisurf(t,p(:,1),p(:,2),uh_T(:,i), 'EdgeColor', 'none')
     title("uh_T, t = " + T(i))
     colorbar ;
-    axis equal ; axis off ; axis tight ; %colormap ('jet');
+    %axis equal ; axis off ; axis tight ; %colormap ('jet');
     shading interp;
     clim([c_min c_max]);
-    view(2);
+    zlim([zmin,zmax])
+    %view(2);
     xlabel("x")
     ylabel("y")
     zlabel("uh")
@@ -44,11 +45,11 @@ movie(figure,F,2, 10)
  close(writerObj)
 
  %%
- for i = length(T):-1:1
+ for i = length(T):-5:1
     figure;
     tld = tiledlayout('flow');
     nexttile
     trisurf(t,p(:,1),p(:,2),uh_T(:,i), 'EdgeColor', 'none')
     title("uh_T, t = " + T(i))
-    view(2)
+    %view(2)
 end
